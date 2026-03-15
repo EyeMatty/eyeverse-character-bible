@@ -1,0 +1,44 @@
+{
+  "name": "eyeverse-character-bible",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "process:characters": "tsx scripts/process-character-images.ts",
+    "setup:drive-zip": "node scripts/organize-drive-zip.cjs",
+    "scan:lore": "node scripts/scan-lore.cjs"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "embla-carousel-react": "^8.0.0",
+    "framer-motion": "^11.0.0",
+    "lucide-react": "^0.300.0",
+    "next": "^14.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sharp": "^0.33.0",
+    "tailwind-merge": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.2.0",
+    "extract-zip": "^2.0.1",
+    "mammoth": "^1.12.0",
+    "pdf-parse": "^2.4.5",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --codex-bg: #0a0a0b;
+    --codex-surface: #121214;
+    --codex-border: #1f1f23;
+    --codex-muted: #71717a;
+    --codex-accent: #10b981;
+    --codex-accent-dim: rgba(16, 185, 129, 0.15);
+    --codex-accent-glow: rgba(16, 185, 129, 0.25);
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+  }
+
+  body {
+    @apply bg-codex-bg text-zinc-100 font-body min-h-screen;
+  }
+}
+
+/* Codex-style divider ornament */
+.codex-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.codex-divider::before,
+.codex-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--codex-border) 20%,
+    var(--codex-accent) 50%,
+    var(--codex-border) 80%,
+    transparent
+  );
+  opacity: 0.6;
+}
+
+/* Shimmer loading placeholder */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--codex-surface) 25%,
+    var(--codex-border) 50%,
+    var(--codex-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Modal ambient glow */
+.modal-glow {
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.08),
+    0 0 40px rgba(16, 185, 129, 0.12),
+    0 0 80px rgba(16, 185, 129, 0.06);
+}
