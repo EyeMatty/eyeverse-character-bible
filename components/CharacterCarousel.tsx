@@ -26,6 +26,7 @@ interface CharacterCarouselProps {
   characterName: string;
   onPrev?: () => void;
   onNext?: () => void;
+  onSlideChange?: (index: number) => void;
   className?: string;
 }
 
@@ -33,7 +34,7 @@ export const CharacterCarousel = forwardRef<
   CharacterCarouselHandle,
   CharacterCarouselProps
 >(function CharacterCarousel(
-  { images, characterName, onPrev, onNext, className },
+  { images, characterName, onPrev, onNext, onSlideChange, className },
   ref
 ) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -57,6 +58,15 @@ export const CharacterCarousel = forwardRef<
     () => ({ scrollPrev, scrollNext }),
     [scrollPrev, scrollNext]
   );
+
+  // Notify parent of slide changes
+  useEffect(() => {
+    if (!emblaApi || !onSlideChange) return;
+    const onSelect = () => onSlideChange(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    onSlideChange(emblaApi.selectedScrollSnap());
+    return () => emblaApi.off("select", onSelect);
+  }, [emblaApi, onSlideChange]);
 
   // Autoplay
   useEffect(() => {

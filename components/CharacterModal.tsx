@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Download } from "lucide-react";
+import JSZip from "jszip";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ export function CharacterModal({
   onOpenChange,
 }: CharacterModalProps) {
   const carouselRef = useRef<CharacterCarouselHandle>(null);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   const handleClose = useCallback(() => {
     onOpenChange(false);
@@ -49,6 +51,45 @@ export function CharacterModal({
     window.addEventListener("keydown", listener);
     return () => window.removeEventListener("keydown", listener);
   }, [open, handleClose]);
+
+  const handleDownloadCurrent = useCallback(() => {
+    if (!character || character.images.length === 0) return;
+    const src = character.images[currentSlideIndex];
+    if (src.startsWith("data:")) return;
+    const ext = src.includes(".gif") ? "gif" : "webp";
+    const num = String(currentSlideIndex + 1).padStart(2, "0");
+    const name = character.name.replace(/\s+/g, "-");
+    const a = document.createElement("a");
+    a.href = src;
+    a.download = `${name}-${num}.${ext}`;
+    a.click();
+  }, [character, currentSlideIndex]);
+
+  const handleDownloadAll = useCallback(async () => {
+    if (!character || character.images.length === 0) return;
+    const zip = new JSZip();
+    const name = character.name.replace(/\s+/g, "-");
+    try {
+      await Promise.all(
+        character.images.map(async (src, i) => {
+          if (src.startsWith("data:")) return;
+          const res = await fetch(src);
+          const blob = await res.blob();
+          const ext = src.includes(".gif") ? "gif" : "webp";
+          const num = String(i + 1).padStart(2, "0");
+          zip.file(`${num}.${ext}`, blob);
+        })
+      );
+      const blob = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${name}-images.zip`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      console.error("Download all failed:", e);
+    }
+  }, [character]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -85,6 +126,7 @@ export function CharacterModal({
                   ref={carouselRef}
                   images={character.images}
                   characterName={character.name}
+                  onSlideChange={setCurrentSlideIndex}
                   className="mt-2"
                 />
               ) : (
@@ -115,12 +157,44 @@ export function CharacterModal({
 
               <div className="codex-divider mt-6" aria-hidden />
 
-              <a
-                href={`/profile/${character.slug}`}
-                className="mt-4 inline-block text-sm text-codex-accent hover:underline"
-              >
-                View full profile →
-              </a>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {character.images.length > 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleDownloadCurrent}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-lg border border-codex-border bg-codex-surface px-3 py-2 text-sm text-zinc-200",
+                        "hover:border-codex-accent hover:bg-codex-accent-dim hover:text-codex-accent",
+                        "focus:outline-none focus:ring-2 focus:ring-codex-accent focus:ring-offset-2 focus:ring-offset-codex-surface"
+                      )}
+                    >
+                      <Download className="h-4 w-4" />
+                      Download current
+                    </button>
+                    {character.images.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={handleDownloadAll}
+                        className={cn(
+                          "inline-flex items-center gap-2 rounded-lg border border-codex-border bg-codex-surface px-3 py-2 text-sm text-zinc-200",
+                          "hover:border-codex-accent hover:bg-codex-accent-dim hover:text-codex-accent",
+                          "focus:outline-none focus:ring-2 focus:ring-codex-accent focus:ring-offset-2 focus:ring-offset-codex-surface"
+                        )}
+                      >
+                        <Download className="h-4 w-4" />
+                        Download all (ZIP)
+                      </button>
+                    )}
+                  </>
+                )}
+                <a
+                  href={`/profile/${character.slug}`}
+                  className="inline-block text-sm text-codex-accent hover:underline"
+                >
+                  View full profile →
+                </a>
+              </div>
             </div>
           </DialogContent>
         )}
